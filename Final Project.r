@@ -103,7 +103,7 @@ data <- data %>% select(hc002_mod,
                         mother_alive,
                         father_alive,
                         siblings_alive,
-                      # h001_, object 'h001_' not found
+                        ch001_,
                         ch021_mod,
                         ch007_hh,
                         ch007_km,
@@ -168,7 +168,6 @@ data <- data %>% filter(hc002_mod >= 0,
          mother_alive,
          father_alive,
          siblings_alive,
-         female,
          hhsize,
          casp,
          ep005_,
@@ -187,14 +186,27 @@ data <- data %>% filter(hc002_mod >= 0,
          chronic_mod)
 
 
- 
 
+####################################################################################################################################
 
+############################################      Converting dependent variable       ##############################################
 
+####################################################################################################################################
 
+hist(data$hc002_mod)
 
+# We assume that a person that goes to the doctor too frequently has an appointment each month and a half.
 
+if (typeof(data$hc002_mod) == "integer") data$hc002_mod <- 
+  (ifelse(data$hc002_mod >= 8, 1, 0))
 
+data$hc002_mod <- as.factor(data$hc002_mod)
+
+plot(data$hc002_mod)
+table(data$hc002_mod)
+table(data$hc002_mod)/3802
+
+# 32% sees the doctor too many times a year
 
 
 
