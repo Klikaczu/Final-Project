@@ -1,4 +1,10 @@
-####################        Does the frame of mind influence how often people go to the doctor?        ##############################
+####################################################################################################################################
+
+####################        Does the frame of mind influence how often people go to the doctor?        #############################
+
+####################################################################################################################################
+
+library(dplyr)
 
 setwd("~/Final-Project")
 
@@ -11,7 +17,13 @@ str(data)
 hist(data$age)
 
 
+
+####################################################################################################################################
+
 #######################################      Choosing potentially useful variables       ###########################################
+
+####################################################################################################################################
+
 
 # Dependent variable:
 
@@ -58,11 +70,124 @@ hist(data$age)
 
 
 
+####################################################################################################################################
+
+#############################################      Dealing with missing values       ###############################################
+
+####################################################################################################################################
+
+sum(is.na(data)) # 0
+
+# Missing codes:
+
+# -3: “implausible value/suspected wrong” -7: “not yet coded”
+# -9: “not applicable filtered”
+# -10: “SHARELIFE interview” (only in wave 7)
+# -11: “regular interview” (only in wave 7)
+# -12: “don’t know / refusal”
+# -13: “not asked in this wave”
+# -14: “not asked in this country”
+# -15: “no information”
+# -16: “no drop-off (information in drop-off in this wave)”
 
 
+# Checking percentage of missing data for each variable:
+
+missingDataProp <- function(x){
+  1 - sum(x >= 0)/4704
+}
+
+data <- data %>% select(hc002_mod,
+                        age,
+                        partnerinhh,
+                        mother_alive,
+                        father_alive,
+                        siblings_alive,
+                      # h001_, object 'h001_' not found
+                        ch021_mod,
+                        ch007_hh,
+                        ch007_km,
+                        sp008_,
+                        hhsize,
+                        casp,
+                        br010_mod,
+                        ep005_,
+                        co007_,
+                        thinc_m,
+                        sphus,
+                        maxgrip,
+                        adlwa,
+                        adla,
+                        iadla,
+                        iadlza,
+                        mobilityind,
+                        lgmuscle,
+                        grossmotor,
+                        finemotor,
+                        bmi,
+                        ep013_mod,
+                        ac002d1, 
+                        ac002d2, 
+                        ac002d3, 
+                        ac002d4,
+                        ac002d5, 
+                        ac002d6, 
+                        ac002d7, 
+                        chronic_mod)
+
+sapply(data, missingDataProp) > 0.5 
+
+# Erasing variables in which more than 50% are missing values
 
 
+data <- data %>% filter(hc002_mod >= 0,
+                        age > 50,
+                        partnerinhh >= 0,
+                        mother_alive >= 0,
+                        father_alive >= 0,
+                        siblings_alive >= 0,
+                        hhsize >= 0,
+                        casp >= 0,
+                        ep005_ >= 0,
+                        co007_ >= 0,
+                        sphus >= 0,
+                        maxgrip >= 0,
+                        adlwa >= 0,
+                        adla >= 0,
+                        iadla >= 0,
+                        iadlza >= 0,
+                        mobilityind >= 0,
+                        lgmuscle >= 0,
+                        grossmotor >= 0,
+                        finemotor >= 0,
+                        bmi >= 0,
+                        chronic_mod >= 0) %>%
+  select(hc002_mod,
+         age,
+         partnerinhh,
+         mother_alive,
+         father_alive,
+         siblings_alive,
+         female,
+         hhsize,
+         casp,
+         ep005_,
+         co007_,
+         sphus,
+         maxgrip,
+         adlwa,
+         adla,
+         iadla,
+         iadlza,
+         mobilityind,
+         lgmuscle,
+         grossmotor,
+         finemotor,
+         bmi,
+         chronic_mod)
 
+
+ 
 
 
 
