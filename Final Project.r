@@ -5,6 +5,9 @@
 ####################################################################################################################################
 
 library(dplyr)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
 
 setwd("~/Final-Project")
 
@@ -135,7 +138,7 @@ data <- data %>% select(hc002_mod,
                         ac002d7, 
                         chronic_mod)
 
-sapply(data, missingDataProp) > 0.5 
+sapply(data, missingDataProp) > 0.75 
 
 # Erasing variables in which more than 50% are missing values
 
@@ -208,5 +211,36 @@ table(data$hc002_mod)/3802
 
 # 32% sees the doctor too many times a year
 
+
+
+
+####################################################################################################################################
+
+#################################################      Developing models       #####################################################
+
+####################################################################################################################################
+
+set.seed(1234)
+
+split <- 0.75
+
+split.index <- (runif(nrow(data)) < split)
+
+train <- data[split.index,]
+test <- data[!split.index,]
+
+table(train$hc002_mod)
+
+tree <- rpart(hc002_mod ~., data = train,
+              method = "class",
+              control = list(maxdepth = 6))
+
+
+rpart.plot(tree, under=FALSE, tweak=1.3, fallen.leaves = TRUE)
+
+
+forest <- randomForest(hc002_mod ~., data=train, ntree=300)
+
+varImpPlot(forest)
 
 
