@@ -8,6 +8,8 @@ library(dplyr)
 library(rpart)
 library(rpart.plot)
 library(randomForest)
+install.packages("ROCR")
+library(ROCR)
 
 setwd("~/Final-Project")
 
@@ -220,7 +222,7 @@ table(data$hc002_mod)/3802
 
 ####################################################################################################################################
 
-set.seed(1234)
+set.seed(76601)
 
 split <- 0.75
 
@@ -242,5 +244,126 @@ rpart.plot(tree, under=FALSE, tweak=1.3, fallen.leaves = TRUE)
 forest <- randomForest(hc002_mod ~., data=train, ntree=300)
 
 varImpPlot(forest)
+
+
+
+
+####################################################################################################################################
+
+###################################################      Testing models       ######################################################
+
+####################################################################################################################################
+
+
+classif_mx1 <- table(predict(tree, newdata = test, type="class"), test$hc002_mod)
+
+classif_mx2 <- table(predict(forest, new = test, type="class"), test$hc002_mod)
+
+
+evaluateModel <- function(classif_mx)
+{
+  true_positive <- classif_mx[1,1]
+  true_negative <- classif_mx[2,2]
+  false_positive <- classif_mx[1,2]
+  false_negative <- classif_mx[2,1]
+  condition_positive <- sum(classif_mx[,1])
+  condition_negative <- sum(classif_mx[,2])
+  predicted_positive <- sum(classif_mx[1,])
+  predicted_negative <- sum(classif_mx[2,])
+  
+  accuracy <- (true_positive + true_negative) / sum(classif_mx)
+  MER <- (false_positive + false_negative) / sum(classif_mx)
+  precision <- true_positive / predicted_positive
+  sensitivity <- true_positive / condition_positive
+  specificity <- true_negative / condition_negative
+  F1 <- (2*precision*sensitivity)/(precision+sensitivity)
+  FPR <- false_positive / condition_negative
+  FNR <- false_negative / condition_positive
+  
+  return(list(
+    accuracy = accuracy,
+    MER = MER,
+    precision = precision,
+    sensitivity = sensitivity,
+    specificity = specificity,
+    F1 = F1,
+    FPR = FPR,
+    FNR = FNR
+  ))
+}
+
+evaluateModel(classif_mx1)
+evaluateModel(classif_mx2)
+
+
+######################################################       ROC       #########################################################
+
+forecast1 <- predict(tree, newdata = test)
+forecast1 <- as.vector(forecast1[,2])
+
+pd1 <- prediction(forecast1, test$hc002_mod) #plotting data for the decision tree model
+
+forecast2 <- predict(forest, newdata = test, type = "prob")[,2]
+
+pd2 <- prediction(forecast2, test$hc002_mod) #plotting data for the random forest model
+
+# ROC decision tree
+plot(performance(pd1, 'tpr', 'fpr'), main="ROC", lwd=2, col="red")
+
+# ROC random forest
+plot(performance(pd2, 'tpr', 'fpr'), main="ROC", lwd=2, col="blue")
+
+# ROC for both
+plot(performance(pd1, 'tpr', 'fpr'), main="ROC", lwd=2, col="red")
+plot(performance(pd2, 'tpr', 'fpr'), add = TRUE, main="ROC", lwd=2, col="blue")
+
+
+######################################################       AUC      #########################################################
+
+# AUC decision tree
+performance(pd1, 'auc')@y.values
+
+# AUC random forest
+performance(pd2, 'auc')@y.values
+
+
+###############################################       SE/SP trade-off      ####################################################
+
+# SE/SP trade-off decision tree
+plot(performance(pd1, "sens", "spec"), main="Sensitivity / Specificity Trade Off",
+     lwd = 2, col = "red")
+
+# SE/SP trade-off random forest
+plot(performance(pd2, "sens", "spec"), main="Sensitivity / Specificity Trade Off",
+     lwd = 2, col = "blue")
+
+# SE/SP trade-off both
+plot(performance(pd1, "sens", "spec"), main="Sensitivity / Specificity Trade Off",
+     lwd = 2, col = "red")
+plot(performance(pd2, "sens", "spec"), add = T, main="Sensitivity / Specificity Trade Off",
+     lwd = 2, col = "blue")
+
+
+##################################################      Lift chart     #######################################################
+
+# Lift chart decision tree
+plot(performance(pd1, "lift", "rpp"), main = "Lift Chart", lwd = 2, col = "red")
+
+# Lift chart random forest
+plot(performance(pd2, "lift", "rpp"), main = "Lift Chart", lwd = 2, col = "blue")
+
+# Lift both
+plot(performance(pd2, "lift", "rpp"), main = "Lift Chart", lwd = 2, col = "blue")
+plot(performance(pd1, "lift", "rpp"), add=T, main = "Lift Chart", lwd = 2, col = "red")
+
+
+
+
+
+
+
+
+
+
 
 
