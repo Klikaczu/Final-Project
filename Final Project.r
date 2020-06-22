@@ -358,9 +358,28 @@ plot(performance(pd1, "lift", "rpp"), add=T, main = "Lift Chart", lwd = 2, col =
 
 
 
+################################################     Cross Validation    #####################################################
 
+accs <- rep(0,10)
 
+for (i in 1:10) {
+  indices <- (((i-1) * round((1/10)*nrow(data))) + 1):((i*round((1/10) * nrow(data))))
+  train2 <- data[-indices,]
+  test2 <- data[indices,]
+  
+  tree2 <- rpart(hc002_mod ~., data = train2,
+                 method = "class",
+                 control = list(maxdepth = 6))
+  
+  conf <- table(predict(tree2, newdata=test2, type="class"), test2$hc002_mod)
+  
+  accs[i] <- sum(diag(conf))/sum(conf)
+  
+  result <- sum(accs)/10
+}
 
+# Accuracy of model with cross validation
+result
 
 
 
