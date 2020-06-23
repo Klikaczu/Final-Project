@@ -10,6 +10,7 @@ library(rpart.plot)
 library(randomForest)
 install.packages("ROCR")
 library(ROCR)
+library(ipred)
 
 setwd("~/Final-Project")
 
@@ -382,6 +383,10 @@ for (i in 1:10) {
 result
 
 
+###################################################     Bootstrap    ########################################################
+
+mod <- bagging(hc002_mod ~ ., data=data, coob=TRUE)
+mod
 
 
 
