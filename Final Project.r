@@ -260,6 +260,9 @@ classif_mx1 <- table(predict(tree, newdata = test, type="class"), test$hc002_mod
 
 classif_mx2 <- table(predict(forest, new = test, type="class"), test$hc002_mod)
 
+classif_mx1[c(2,1),c(2,1)]
+
+classif_mx2[c(2,1),c(2,1)]
 
 evaluateModel <- function(classif_mx)
 {
@@ -387,7 +390,4 @@ result
 
 mod <- bagging(hc002_mod ~ ., data=data, coob=TRUE)
 mod
-
-
-
 
