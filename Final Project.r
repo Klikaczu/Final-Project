@@ -3,13 +3,17 @@
 ####################        Does the frame of mind influence how often people go to the doctor?        #############################
 
 ####################################################################################################################################
-
+install.packages("dplyr")
 library(dplyr)
+install.packages("rpart")
 library(rpart)
+install.packages("rpart.plot")
 library(rpart.plot)
+install.packages("randomForest")
 library(randomForest)
 install.packages("ROCR")
 library(ROCR)
+install.packages("ipred")
 library(ipred)
 
 setwd("~/Final-Project")
